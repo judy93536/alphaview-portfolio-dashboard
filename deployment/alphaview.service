@@ -1,0 +1,20 @@
+[Unit]
+Description=AlphaView Portfolio Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/alphaview
+Environment=AWS_PROFILE=alphaview
+Environment=PYTHONPATH=/opt/alphaview
+ExecStart=/opt/alphaview/venv/bin/python alphaview_fully_functional.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=alphaview
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,196 @@
+= AlphaView Portfolio Dashboard - User Administration =
+
+== Overview ==
+
+This guide explains how to add and manage users for the AlphaView Portfolio Dashboard using AWS Cognito. The system supports two user roles: '''Admin''' (full access) and '''Viewer''' (read-only access).
+
+=== Dashboard Access ===
+* '''Production URL''': http://35.80.141.177:8051
+* '''Authentication''': AWS Cognito User Pool
+* '''User Pool ID''': us-west-2_BzA3NZOv6
+
+== User Roles ==
+
+=== Admin Group ===
+{{Icon|crown}} '''Full Dashboard Access'''
+* All tabs including Execute Trades and Update Prices
+* Can buy/sell stocks and execute portfolio trades
+* Can update portfolio values with latest market prices
+* All viewer permissions plus administrative functions
+
+=== Viewer Group ===
+{{Icon|eye}} '''Read-Only Access'''
+* Target vs Actual, Performance, Transaction Log, Portfolio Export
+* Full performance analytics and reporting capabilities
+* Can generate and download portfolio reports
+* Cannot execute trades or update prices
+
+== Adding New Users ==
+
+=== Step 1: Access AWS Cognito Console ===
+
+# Log into AWS Console
+# Navigate to '''Cognito''' → '''User pools'''
+# Select your user pool: '''User pool - kryhxh'''
+
+=== Step 2: Create New User ===
+
+# Click '''Users''' tab
+# Click '''Create user''' button
+# Fill in user details:
+#* '''Email address''': Enter real email address (e.g., <code>john.doe@company.com</code>)
+#* '''Mark email as verified''': {{Checkbox|checked}} '''REQUIRED - Check this box'''
+#* '''Send an invitation''': {{Checkbox|checked}} Check this (sends login instructions via email)
+#* '''Temporary password''': 
+#** Recommended: Let AWS generate one
+#** Alternative: Set custom temporary password
+#* '''User must create a new password at next sign-in''': {{Checkbox|checked}} Check this
+
+=== Step 3: Assign User to Group ===
+
+# After creating the user, click on the user's email in the user list
+# Go to '''Group memberships''' tab
+# Click '''Add user to group'''
+# Select appropriate group:
+#* '''<code>admin</code>''' - For users who need trading capabilities
+#* '''<code>viewer</code>''' - For users who only need read-only access
+
+== User Invitation Process ==
+
+=== What Happens When You Create a User ===
+
+'''Email Sent''': User receives an invitation email with:
+* Username (their email address)
+* Temporary password
+* Login URL: http://35.80.141.177:8051
+* Instructions for first login
+
+'''First Login Process''':
+# User visits the dashboard URL
+# Enters email + temporary password
+# System prompts for new permanent password
+# User creates secure password
+# Automatically redirected to dashboard based on role
+
+== Managing Existing Users ==
+
+{| class="wikitable"
+! Action !! Steps
+|-
+| '''Change User Role''' || Go to '''Users''' → Select user → '''Group memberships'''<br>Remove from current group, Add to new group (<code>admin</code> or <code>viewer</code>)
+|-
+| '''Reset User Password''' || Go to '''Users''' → Select user → '''Actions''' → '''Reset password'''<br>User will receive email with new temporary password
+|-
+| '''Disable User Access''' || Go to '''Users''' → Select user → '''Actions''' → '''Disable user'''<br>User cannot login but account is preserved
+|-
+| '''Delete User Account''' || Go to '''Users''' → Select user → '''Actions''' → '''Delete user'''<br>{{Warning|This permanently removes the user}}
+|}
+
+== Example User Setup ==
+
+<pre>
+Company: AlphaView Investment Management
+
+Admin Users:
+- portfolio.manager@alphaview.com (admin group)
+- chief.trader@alphaview.com (admin group)
+- risk.manager@alphaview.com (admin group)
+
+Viewer Users:
+- senior.analyst@alphaview.com (viewer group)
+- investment.committee@alphaview.com (viewer group)
+- compliance@alphaview.com (viewer group)
+- client.reports@alphaview.com (viewer group)
+</pre>
+
+== Dashboard Features by Role ==
+
+=== Admin Capabilities ===
+* '''Target vs Actual''': Portfolio allocation analysis with charts and tables
+* '''{{Icon|lock}} Execute Trades''': Buy/sell stocks with real-time position updates
+* '''Update Prices''': Refresh portfolio values with latest market data
+* '''Performance''': Advanced analytics with VaR, CVaR, Sharpe Ratio, drawdown analysis
+* '''Transaction Log''': Complete trade history with filtering and sorting
+* '''Portfolio Export''': CSV, Excel, JSON exports with custom field selection
+
+=== Viewer Capabilities ===
+* '''Target vs Actual''': Portfolio allocation analysis (read-only)
+* '''Performance''': All performance analytics and charting capabilities
+* '''Transaction Log''': View complete trade history (read-only)
+* '''Portfolio Export''': Full export capabilities with custom field selection
+* '''No Access''': Execute Trades and Update Prices tabs are hidden
+
+== Security Best Practices ==
+
+=== User Management ===
+{{Checklist|
+* Always mark email addresses as verified when creating users
+* Use strong temporary passwords or let AWS generate them
+* Require users to create new passwords on first login
+* Assign users to appropriate groups based on job function
+* Regularly review user access and remove inactive accounts
+}}
+
+=== Email Verification ===
+{{Important|Always check "Mark email as verified"}}
+* '''Reason''': Prevents authentication issues and ensures proper email delivery
+* '''Impact''': Unverified emails cannot receive password reset notifications
+
+=== Group Assignment ===
+* '''Required''': Every user must be assigned to either <code>admin</code> or <code>viewer</code> group
+* '''No Group''': Users without group assignment cannot access the dashboard
+* '''Multiple Groups''': Not recommended - assign to one primary group
+
+== Troubleshooting ==
+
+=== User Cannot Login ===
+# '''Check email verification''': Ensure email is marked as verified in Cognito
+# '''Check group membership''': User must be in <code>admin</code> or <code>viewer</code> group
+# '''Check user status''': Ensure user is not disabled
+# '''Password issues''': Reset password if user forgot new password
+
+=== User Gets "Access Denied" ===
+# '''Wrong group''': Viewer trying to access admin-only features
+# '''No group''': User not assigned to any group
+# '''Session expired''': User needs to logout and login again
+
+=== Email Not Received ===
+# '''Check spam folder''': Cognito emails may go to spam
+# '''Email verification''': Ensure email is marked as verified
+# '''Resend invitation''': Create new temporary password and resend
+
+== Technical Details ==
+
+=== Authentication Flow ===
+# User enters credentials at login page
+# AWS Cognito validates credentials
+# System checks user's group membership
+# Dashboard loads with appropriate tabs based on role
+# All API calls are authenticated with Cognito session tokens
+
+=== Session Management ===
+* '''Session Duration''': Configured in Cognito settings
+* '''Logout''': Clears local session and redirects to login
+* '''Auto-logout''': Sessions expire based on Cognito configuration
+
+=== Database Access ===
+* '''Portfolio Data''': AWS RDS PostgreSQL (users see real portfolio data)
+* '''Price Data''': Daily S&P 500 universe from 2022-01-03 to present
+* '''Calculations''': Real-time portfolio metrics and performance analytics
+
+== Support ==
+
+For technical issues or user management questions:
+# Check this documentation first
+# Review AWS Cognito console for user status
+# Check dashboard server logs if needed
+# Contact system administrator for advanced troubleshooting
+
+----
+'''Last Updated''': 2025-07-13<br>
+'''Dashboard Version''': Fully Functional with Authentication<br>
+'''AWS Region''': us-west-2
+
+[[Category:User Administration]]
+[[Category:AWS Cognito]]
+[[Category:AlphaView Dashboard]]
